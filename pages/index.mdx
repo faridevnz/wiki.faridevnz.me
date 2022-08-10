@@ -1,0 +1,23 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# WundArt Wiki
+
+<Callout emoji="✅">
+  **MDX** (the library), at its core, transforms MDX (the syntax) to JSX.
+  'This is an example component'
+</Callout>
+
+> <Callout>
+>   Give [**Nextra**](https://github.com/shuding/nextra) a star!
+> </Callout>
+
+```js highlight=1
+import useSWR from 'swr'
+
+function Profile() {
+  const { data, error } = useSWR('/api/user', fetcher)
+  if (error) return <div>failed to load</div>
+  if (!data) return <div>loading...</div>
+  return <div>hello {data.name}!</div>
+}
+```
