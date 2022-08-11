@@ -1,7 +1,10 @@
-PORT=$(awk -F'LISTEN |/' '{print $2}' <<< "$(netstat -ltnp | egrep ':::3000')" | sed 's/\s//g')
+PID=$(awk -F'LISTEN |/' '{print $2}' <<< "$(netstat -ltnp | egrep ':::3000')" | sed 's/\s//g')
+echo "detected pid running on :::3000 --> ${PID}"
 
 if [ ! -z "$PORT" ]; then
-        kill $PORT
+        echo "killing the running process with PID ${PID}"
+        echo $(kill $PORT)
 fi
 
-./node_modules/yarn/bin/yarn next > /dev/null 2>&1 &
+echo "restart the wiki server"
+/var/www/wiki.faridevnz.me/node_modules/yarn/bin/yarn next > /var/www/wiki.faridevnz.me/logs/info.log 2> /var/www/wiki.faridevnz.me/logs/error.log &
