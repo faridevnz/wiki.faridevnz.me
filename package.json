@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "./node_modules/yarn/bin/yarn next"
+    "start": "./start.sh"
   },
   "dependencies": {
     "next": "^12.2.4",

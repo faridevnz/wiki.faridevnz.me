@@ -1,3 +1,5 @@
+echo "PATH --> ${PATH}"
+
 PID=$(awk -F'LISTEN |/' '{print $2}' <<< "$(netstat -ltnp | egrep ':::3000')" | sed 's/\s//g')
 echo "detected pid running on :::3000 --> ${PID}"
 
