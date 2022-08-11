@@ -1,0 +1,61 @@
+name: '📦 Deploy Wiki'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  # DELETING CURRENT BUILD
+  delete-current-build:
+    needs: [backup-current-build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Delete current build
+        uses: appleboy/ssh-action@master
+        with:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          KEY: ${{ secrets.SSHKEY }}
+          script: rm -rf /var/www/wiki.faridevnz.me/*
+
+  # BUILD
+  build:
+    continue-on-error: true
+    needs: [delete-current-build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: wiki
+      url: https://wiki.faridevnz.me
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Copy file via scp
+        uses: appleboy/scp-action@master
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          KEY: ${{ secrets.SSHKEY }}
+        with:
+          source: .
+          target: /var/www/wiki.faridevnz.me/
+      
+      - name: Start the wiki server
+        uses: appleboy/ssh-action@master
+        with:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          KEY: ${{ secrets.SSHKEY }}
+          script: cd /var/www/wiki.faridevnz.me && ./start.sh
