@@ -1,9 +1,9 @@
 PID=$(awk -F'LISTEN |/' '{print $2}' <<< "$(netstat -ltnp | egrep ':::3000')" | sed 's/\s//g')
 echo "detected pid running on :::3000 --> ${PID}"
 
-if [ ! -z "$PORT" ]; then
+if [ ! -z "$PID" ]; then
         echo "killing the running process with PID ${PID}"
-        echo $(kill $PORT)
+        echo $(kill $PID)
 fi
 
 echo "restart the wiki server"
