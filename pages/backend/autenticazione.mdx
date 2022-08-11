@@ -20,27 +20,29 @@ disattivato e non sarà più utilizzabile.
 - `Refresh Token` : Questo token è quello che garantisce al client la possibilità di ottenere un nuovo Access Token nel momento in cui
   quello attualmente in uso sia scaduto o per qualsiasi motivo non più valido.
   I Refresh Token, al contrario degli Access Token ( avendo durata più lunga ) sono **statefull** e persistono nella tabella
-  `REFRESH_TOKENS` del database, in questo modo possono essere invalidato all'occorrenza ( vediam in seguito le modalità di 
-  invalidazione di un refresh token ). 
+  `REFRESH_TOKENS` del database, in questo modo possono essere invalidato all'occorrenza ( vedremo in seguito le modalità di 
+  invalidazione di un refresh token ).
   La durata *teorica* ( vedremo poi il perché ) di questo token è di `3 giorni` per l'utente **COLLEZIONISTA**
   e di `1 settimana` per l'utente **ARTISTA**
 
 ### Flusso di Autenticazione
 
 1. Il client effettua una chiamata all'endpoint `POST /api/auth/login` mandando le credenziali inserite dall'utente come descritto
-  nella [documentazione delle api](https://staging.faridevnz.me/api/docs) e riceverà l'`ID Token` ed il `Refresh Token` nel body della response,
-  mentre riceverà l'`Access Token` come **Cookie HTTP Only** in modo tale che non sarà accessibile tramite codice JavaScript client side e verrà 
-  automaticamente inviato dal Browser al settaggio della proprità `{ withCredentials: true }`.
+  nella [documentazione delle api](https://staging.faridevnz.me/api/docs) e riceverà l'`ID Token` nel body della response,
+  mentre riceverà l'`Access Token` ed il `Refresh Token` come **Cookie HTTP Only** in modo tale che non saranno accessibili tramite codice 
+  *JavaScript* client side e verranno automaticamente inseriti dal Browser nelle chiamate verso i path che metchano la voce `Path` specificato
+  all'interno del Cookie al settaggio della proprità `{ withCredentials: true }`. In questo specifico caso, l'Access Token
+  verrà mandato tramite il **Cookie** `ACCESS-TOKEN`.
 
-2. Alla scadenza dell'`Access Token` il client potrà ottenerne uno nuovo tramite l'endpoint `POST /api/auth/tokens/refresh` passando come dato nel
-  body della richiesta il `refreshToken=[refresh_token]`. Il server risponderà con lo stesso modello fornito in
-  risposta alla chiamata `POST /api/auth/login` descritta nel punto 1. In particolare, il `Refresh Token` appena utilizzato verrà disattivato
-  e il client ne riceverà uno nuovo con la stessa data di scadenza di quello precedente, in questo modo la scadenza complessiva
-  di tutti i Refresh Token rigenerati al refresh di ogni Access Token corrisponderà a quella descritto nel punto apposito della sezione precedente.
+2. Alla scadenza dell'`Access Token` il client potrà ottenerne uno nuovo tramite l'endpoint `POST /api/auth/tokens/refresh` ed il Refresh Token
+  verrà automaticamente mandato dal browser ( tramite il **Cookie** `REFRESH-TOKEN` ). Il server risponderà in maniera identica alla chiamata 
+  `POST /api/auth/login` descritta nel punto 1. In particolare, il `Refresh Token` appena utilizzato verrà disattivato e il client ne riceverà 
+  uno nuovo con la stessa data di scadenza di quello precedente, in questo modo la scadenza complessiva di tutti i Refresh Token rigenerati al 
+  refresh di ogni Access Token corrisponderà a quella descritta nel punto apposito della sezione precedente.
 
-3. Nel caso in cui anche il `Refresh Token` fornito non è valido il server risponderà con `401` ed il client dovrà fare un `logout` dell'utente
+3. Nel caso in cui anche il `Refresh Token` fornito non fosse valido il server risponderà con `401` ed il client dovrà fare un `logout` dell'utente
   costringendolo a ripartire con un `Login` esplicito dal punto 1.
 
 4. Al `Logout` esplicito dell'utente, il client dovrà informare il server di invalidare il `Refresh Token` corrente tramite l'endpoint
-  `POST /api/auth/tokens/invalidate` passando come dato nel body della richiesta il `refreshToken=[refresh_token]`. In questo modo quest'ultimo
-  verrà invalidato e non sarà più utilizzabile.
+  `POST /api/auth/tokens/invalidate`, anche in questo caso il Refresh Token verrà automaticamente inviato dal browser 
+  ( tramite il **Cookie** `REFRESH-TOKEN` ). In questo modo quest'ultimo verrà invalidato e non sarà più utilizzabile.
