@@ -57,4 +57,4 @@ jobs:
           HOST: ${{ secrets.HOST }}
           USERNAME: ${{ secrets.USERNAME }}
           KEY: ${{ secrets.SSHKEY }}
-          script: cd /var/www/wiki.faridevnz.me && npm run start
+          script: cd /var/www/wiki.faridevnz.me && ./start.sh

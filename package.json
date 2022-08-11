@@ -1,7 +1,4 @@
 {
-  "scripts": {
-    "start": "./start.sh"
-  },
   "dependencies": {
     "next": "^12.2.4",
     "nextra": "^1.1.0",
