@@ -9,7 +9,6 @@ jobs:
 
   # DELETING CURRENT BUILD
   delete-current-build:
-    needs: [backup-current-build]
     runs-on: ubuntu-latest
 
     steps:
