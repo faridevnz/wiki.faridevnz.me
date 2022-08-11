@@ -1,0 +1,46 @@
+# Autenticazione 🔑 con Java Spring Security
+
+L' autenticazione è implementata seguento una versione light di `OAuth 2` usando un `ID Token`,
+un  `Access Token` ed un `Refresh Token`. Inoltre è stata implementata la tecnica di rotazione dei
+Refresh Token, perciò, ogni qualcolta uno di questi verrà utilizzato per ottenere un nuovo Access Token, esso verrà
+disattivato e non sarà più utilizzabile.
+
+### A cosa servono questi Token ? 
+
+- `ID Token` : Questo token è usato per fornire al client, in fase di autenticazione, tutte le informazioni relative all'utente
+  che si è appena loggato in modo da personalizzare l'esperienza d'uso ( stesse informazioni reperibili dall'endpoint `/me` ).
+  L'ID Token non dovrà essere mandato al server ma serve semplicemente al client per avere le informazioni dell'utente, inoltre
+  esso ha le stesse `issued date` ed `expiration date` dell'Accesso Token quindi potrà essere usato dal client anche per verificare
+  queste due informazioni qualora fosse necessario.
+
+- `Access Token` : Questo token è quello che garantisce al client l'autenticazione agli endpoint protetti e non deve e non può ( vedremo 
+  nel flusso di autenticazione il perchè ) mai essere decodificato e letto dal client in quanto non contiene nessun dato utile ad esso.
+  Ogni Access Token è **stateless** perciò, una volta generato, non c'è modo di invalidarlo. La durata di questo token è di `15 minuti`.
+
+- `Refresh Token` : Questo token è quello che garantisce al client la possibilità di ottenere un nuovo Access Token nel momento in cui
+  quello attualmente in uso sia scaduto o per qualsiasi motivo non più valido.
+  I Refresh Token, al contrario degli Access Token ( avendo durata più lunga ) sono **statefull** e persistono nella tabella
+  `REFRESH_TOKENS` del database, in questo modo possono essere invalidato all'occorrenza ( vediam in seguito le modalità di 
+  invalidazione di un refresh token ). 
+  La durata *teorica* ( vedremo poi il perché ) di questo token è di `3 giorni` per l'utente **COLLEZIONISTA**
+  e di `1 settimana` per l'utente **ARTISTA**
+
+### Flusso di Autenticazione
+
+1. Il client effettua una chiamata all'endpoint `POST /api/auth/login` mandando le credenziali inserite dall'utente come descritto
+  nella [documentazione delle api](https://staging.faridevnz.me/api/docs) e riceverà l'`ID Token` ed il `Refresh Token` nel body della response,
+  mentre riceverà l'`Access Token` come **Cookie HTTP Only** in modo tale che non sarà accessibile tramite codice JavaScript client side e verrà 
+  automaticamente inviato dal Browser al settaggio della proprità `{ withCredentials: true }`.
+
+2. Alla scadenza dell'`Access Token` il client potrà ottenerne uno nuovo tramite l'endpoint `POST /api/auth/tokens/refresh` passando come dato nel
+  body della richiesta il `refreshToken=[refresh_token]`. Il server risponderà con lo stesso modello fornito in
+  risposta alla chiamata `POST /api/auth/login` descritta nel punto 1. In particolare, il `Refresh Token` appena utilizzato verrà disattivato
+  e il client ne riceverà uno nuovo con la stessa data di scadenza di quello precedente, in questo modo la scadenza complessiva
+  di tutti i Refresh Token rigenerati al refresh di ogni Access Token corrisponderà a quella descritto nel punto apposito della sezione precedente.
+
+3. Nel caso in cui anche il `Refresh Token` fornito non è valido il server risponderà con `401` ed il client dovrà fare un `logout` dell'utente
+  costringendolo a ripartire con un `Login` esplicito dal punto 1.
+
+4. Al `Logout` esplicito dell'utente, il client dovrà informare il server di invalidare il `Refresh Token` corrente tramite l'endpoint
+  `POST /api/auth/tokens/invalidate` passando come dato nel body della richiesta il `refreshToken=[refresh_token]`. In questo modo quest'ultimo
+  verrà invalidato e non sarà più utilizzabile.
