@@ -4,4 +4,4 @@ if [ ! -z "$PORT" ]; then
         kill $PORT
 fi
 
-npm run start > /dev/null 2>&1 &
+./node_modules/yarn/bin/yarn next > /dev/null 2>&1 &
