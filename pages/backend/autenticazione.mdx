@@ -28,7 +28,7 @@ disattivato e non sarà più utilizzabile.
 ### Flusso di Autenticazione
 
 1. Il client effettua una chiamata all'endpoint `POST /api/auth/login` mandando le credenziali inserite dall'utente come descritto
-  nella [documentazione delle api](https://staging.faridevnz.me./api/swagger-ui) e riceverà l'`ID Token` nel body della response,
+  nella [documentazione delle api](https://testing.faridevnz.me./api/swagger-ui) e riceverà l'`ID Token` nel body della response,
   mentre riceverà l'`Access Token` ed il `Refresh Token` come **Cookie HTTP Only** in modo tale che non saranno accessibili tramite codice 
   *JavaScript* client side e verranno automaticamente inseriti dal Browser nelle chiamate verso i path che metchano la voce `Path` specificato
   all'interno del Cookie al settaggio della proprità `{ withCredentials: true }`. In questo specifico caso, l'Access Token
