@@ -44,5 +44,6 @@ disattivato e non sarà più utilizzabile.
   costringendolo a ripartire con un `Login` esplicito dal punto 1.
 
 4. Al `Logout` esplicito dell'utente, il client dovrà informare il server di invalidare il `Refresh Token` corrente tramite l'endpoint
-  `POST /api/auth/tokens/invalidate`, anche in questo caso il Refresh Token verrà automaticamente inviato dal browser 
+  `POST /api/auth/logout`, anche in questo caso il Refresh Token verrà automaticamente inviato dal browser 
   ( tramite il **Cookie** `REFRESH-TOKEN` ). In questo modo quest'ultimo verrà invalidato e non sarà più utilizzabile.
+  Inoltre il `Refresh Token` potrà essere esplicitamente invalidato tramite l'endpoint `POST /api/auth/tokens/invalidate`.
