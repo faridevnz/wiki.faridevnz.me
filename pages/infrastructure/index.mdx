@@ -1,1 +1,15 @@
-# ROUTE OF BACKEND WIKI
+# Infrastruttura 🗄
+
+### Installation 📦
+
+- nginx ( sudo apt update && sudo apt install nginx )
+- certbot ( sudo add-apt-repository ppa:certbot/certbot && sudo apt-get update && sudo apt-get install certbot )
+
+### Steps 🪜
+
+- creazione della cartella /var/www
+- creazione della cartella del site all'interno di /var/www
+- creazione del site in /etc/nginx/sites-available
+- soft link del site nella cartella /etc/nginx/sites-enabled
+- generazione del certificato ssl con Certbot ( sudo certbot certonly --standalone --preferred-challenges http -d example.com )
+- setup pipeline
